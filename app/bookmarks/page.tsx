@@ -1,22 +1,24 @@
 "use client"
-
-import { useEffect, useState } from "react"
-
+import { useQuery } from "@tanstack/react-query"
 import { Heading, Text } from "@chakra-ui/react"
 
 import { Bookmark } from "@/components/bookmark"
 import { BookmarkType } from "./schema"
 
 export default function Bookmarks() {
-  const [bookmarks, setBookmarks] = useState<BookmarkType[]>([])
 
-  useEffect(() => {
-    fetch("/bookmarks/api", {
-      next: { tags: ["bookmarks"] },
-    })
-      .then((response) => response.json() as Promise<{ data: BookmarkType[] }>)
-      .then(({ data }) => setBookmarks(data))
-  }, [])
+  const { data: bookmarks, status } = useQuery({
+    queryKey: ["bookmarks"],
+    queryFn: async () => {
+      return fetch("/bookmarks/api")
+      .then((response) => {
+        return response.json()
+      })
+      .then(({ data }) => {
+        return data as BookmarkType[]
+      })
+    },
+  })
 
   return (
     <main className="mt-12">
